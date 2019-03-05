@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import json
 from datetime import datetime
 from pygc import great_distance
-
 #%% Proto data pre-processing
 data = pd.read_csv("train.csv",converters={'POLYLINE': lambda x: json.loads(x)})
 data.TAXI_ID = data.TAXI_ID.astype("int32")
@@ -37,8 +36,8 @@ for d in data.POLYLINE:
     lat_temp, lon_temp, dist_temp = [], [], []
     distance = 0
     for i in range(len(d)):
-        lat_temp.append(d[i][0])
-        lon_temp.append(d[i][1])
+        lat_temp.append(d[i][1])
+        lon_temp.append(d[i][0])
         if i > 0:
             dist = great_distance(start_latitude=lat_temp[i-1], start_longitude=lon_temp[i-1], end_latitude=lat_temp[i], end_longitude=lon_temp[i])['distance'].item(0)
             dist_temp.append(dist)
@@ -47,7 +46,7 @@ for d in data.POLYLINE:
     lon.append(lon_temp)
     distgap.append(dist_temp)
     dist_tot.append(distance/1000)
-    time_tot.append((len(data) - 1) * 15/60)
+    time_tot.append((len(d) - 1) * 15/60)
     if(j%1000==0):
         print(j)
 #%% converting numpy arrays to series for making a dataframe & converting to required data formats
@@ -63,6 +62,6 @@ s_time_gap = pd.Series(time_gap, name="time_gap")
 s_dateID = pd.Series(dateID, name="dateID")
 data_final = pd.concat([s_time_gap, s_dist, s_lats, data.iloc[:,4], s_weekID, s_timeID, s_dateID, s_time, s_lngs, s_dist_gap], axis=1, sort=False)
 data_final.rename(columns={'TAXI_ID':'driverID'}, inplace=True)
-data_final.to_json(path_or_buf='D:\Courses\Codes\CN\data.txt',orient="records")
+data_final.to_json(path_or_buf='D:\Courses\Codes\CN\Porto_Data\data.txt',orient="records")
 #%% store the dataset in csv format for further analysis
-data_final.to_csv('D:\Courses\Codes\CN\portodata.csv')
+data_final.to_csv('D:\Courses\Codes\CN\Porto_Data\portodata.csv',index=False)
